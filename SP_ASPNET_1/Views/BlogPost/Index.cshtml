@@ -1,0 +1,132 @@
+﻿@using SP_ASPNET_1.BusinessLogic
+@using SP_ASPNET_1.Models
+
+
+@{
+    Layout = "~/Views/Shared/Blog/_BlogLayout.cshtml";
+    string ID;
+    string mark="";
+    string CommentsId;
+    }
+@if (Model.BlogPosts != null)
+{
+<ul class="Posts__Featured" >
+    @foreach (BlogPost post in Model.BlogPosts)
+    {
+        
+<li class="Posts__Item " style="margin-bottom:10px;" >
+    <img src="@Html.AttributeEncode(Constants.POST_IMAGE_PREFIX + post.ImageUrl)" alt="post image preview" class="Post__Image">
+    <div class="Post-Preview__Content">
+        @*<h1>@post.BlogPostID</h1>*@
+        <h2>@post.Title</h2>
+        <p>By @post.Author.Name 
+        ( @post.Author.AverageLikes() <i class="fa fa-heart"></i> )
+
+        on @post.DateTime.ToString(Constants.DISPLAY_DATETIME_FORMAT)</p>
+        <br>
+        <p>@post.Content.Substring(0, 20)...</p>
+    </div>
+</li>
+                    <li class="Posts__Item__Link" >
+                        <button onClick="location.href='@Url.Action("SinglePost", new { id = @post.BlogPostID})'" class="c-btn btn">read more</button>
+                        <span style="margin-left:50px;">
+                            <!--<i class="fa fa-thumbs-up Post__like " aria-hidden="true" style="font-size:30px;">-->
+                            <!--("text", "<i class='fa fa-thumbs-up Post__like' aria-hidden='true' style='font-size:30px;'>")-->
+                            @if (post.Likes.Any(v=>v.IPAdress==Request.UserHostAddress))
+                            {
+                                mark = "liked";
+                            }
+                            else
+                            {
+                                mark = "";
+                            }
+                            @Ajax.ActionLink(" ", "AddLikes", new { id = post.BlogPostID, requestIP = Request.UserHostAddress }, new AjaxOptions()
+                            {
+                                HttpMethod = "GET",
+                                InsertionMode = InsertionMode.Replace,
+                                UpdateTargetId = "likeSpan" + post.BlogPostID
+                            }, new { @class = "Ajax__Link"+" "+mark })
+                            @{ 
+                                ID = "likeSpan" + post.BlogPostID;
+                                CommentsId = "Comments" + post.BlogPostID;
+                            }
+                            
+                            <span id="@ID" style="margin-right:5px;"> @post.Likes.ToList().Count() </span>
+                            @Ajax.ActionLink("Comments","GetCommentsById",new { id=post.BlogPostID },new AjaxOptions()
+                             {
+                                 HttpMethod="POST",
+                                 InsertionMode=InsertionMode.Replace,
+                                 UpdateTargetId="Comments"+post.BlogPostID
+
+                              }, new { @class="c-btn btn" }) <span>@post.Comments.Count()</span>
+                            <div id="@CommentsId">
+
+                            </div>
+                             @using (Ajax.BeginForm("AddNewComment",new { id=post.BlogPostID },new AjaxOptions()
+                             {
+                                 HttpMethod = "POST",
+                                 InsertionMode = InsertionMode.InsertAfter,
+                                 UpdateTargetId = "Comments"+post.BlogPostID
+                             },new { @class="text-left" }))
+                             {
+                                <label for="UserName" class="text-left" >Name:</label>
+                                <input id="UserName" type="text" name="UserName" class="form-control"  />
+                                <label for="Comment">Comment:</label>
+                                <textarea id="Comment" cols="3" rows="3" name="body" class="form-control"></textarea>
+                                <input type="submit" value="Save" class="btn btn-primary" style="margin-top:5px;" />
+                             }
+                            <!--</i>-->
+                        </span>
+                        <hr class="Post__Hr" />
+                    </li>
+                    }
+    <li id="mainLi"></li>
+    <li >
+        @Ajax.ActionLink("load more","LoadMore",null,new AjaxOptions() {
+       HttpMethod="POST",
+       InsertionMode=InsertionMode.InsertAfter,
+       UpdateTargetId="mainLi",
+       OnSuccess="LikesLoadFuntion"
+
+   },new { @class= "c-btn btn",id="more" })
+        @*<button class="c-btn">load more</button>*@
+    </li>
+
+</ul> 
+}
+            else
+            {
+<h1>There are no blog posts :-(</h1>
+}
+@section scripts{
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        function LikesLoadFuntion() {
+            var allAjax = $(".Ajax__Link");
+            for (let i = 0; i < allAjax.length; i++) {
+                if (allAjax[i].classList.contains("liked")) {
+                    allAjax[i].innerHTML = "<i class='fa fa-thumbs-up Post__like colored' aria-hidden='true' style='font-size:26px;'>";
+                } else {
+                    allAjax[i].innerHTML = "<i class='fa fa-thumbs-up Post__like' aria-hidden='true' style='font-size:26px;'>";
+                }
+
+            }
+
+            $(".Post__like").css("cursor", "pointer");
+            var allLikes = $(".Post__like");
+
+            for (let i = 0; i < allLikes.length; i++) {
+                allLikes[i].onclick = function () {
+                    console.log(i + "   " + allLikes[i].classList);
+                    allLikes[i].classList.toggle("colored");
+                }
+            }
+        }
+        LikesLoadFuntion();
+        
+
+    
+ 
+    </script>
+
+}

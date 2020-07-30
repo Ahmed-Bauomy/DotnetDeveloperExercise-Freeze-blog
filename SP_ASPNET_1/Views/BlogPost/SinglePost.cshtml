@@ -1,0 +1,85 @@
+﻿@using SP_ASPNET_1.BusinessLogic
+@model SP_ASPNET_1.ViewModels.BlogSinglePostViewModel
+
+@*@{
+        ViewBag.Title = "SinglePost";
+    }*@
+@{
+    Layout = "~/Views/Shared/Blog/_BlogLayout.cshtml";
+    string ID;
+    string mark = ""; }
+
+@if (Model != null)
+{
+<div class="SinglePost">
+    <img src="@Html.AttributeEncode(Constants.POST_IMAGE_PREFIX + Model.BlogPost.ImageUrl)" alt="@Path.GetFileNameWithoutExtension(Model.BlogPost.ImageUrl)" />
+    <h2>new chills for summer</h2>
+    <p>By @Model.Author.ToString() on @Model.BlogPost.DateTime.ToString(Constants.DISPLAY_DATETIME_FORMAT)</p>
+    <p>
+        @Model.BlogPost.Content
+    </p>
+    <p>
+        @Html.ActionLink("Edit", "EditBlogPost", new { id = Model.BlogPost.BlogPostID }) |
+        @Html.ActionLink("Back to List", "Index") |
+        @Html.ActionLink("Delete", "EditBlogPost", new { id = Model.BlogPost.BlogPostID }) |
+    </p>
+    <span style="text-align:right " >
+        <!--<i class="fa fa-thumbs-up Post__like " aria-hidden="true" style="font-size:30px;">-->
+        <!--("text", "<i class='fa fa-thumbs-up Post__like' aria-hidden='true' style='font-size:30px;'>")-->
+        @if (Model.BlogPost.Likes.Any(v => v.IPAdress == Request.UserHostAddress))
+        {
+            mark = "liked";
+        }
+        else
+        {
+            mark = "";
+        }
+        @Ajax.ActionLink(" ", "AddLikes", new { id = Model.BlogPost.BlogPostID, requestIP = Request.UserHostAddress }, new AjaxOptions()
+        {
+            HttpMethod = "GET",
+            InsertionMode = InsertionMode.Replace,
+            UpdateTargetId = "likeSpan" + Model.BlogPost.BlogPostID
+        }, new { @class = "Ajax__Link" + " " + mark })
+        @{ ID = "likeSpan" + Model.BlogPost.BlogPostID; }
+
+        <span id="@ID"> @Model.BlogPost.Likes.ToList().Count() </span>
+
+        <!--</i>-->
+    </span>
+</div> }
+else
+{
+<div class="SinglePost">
+    <h2>There are no blog posts :-(</h2>
+</div>}
+
+@section scripts{
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        $(function () {
+            var allAjax = $(".Ajax__Link");
+
+            for (let i = 0; i < allAjax.length; i++) {
+                if (allAjax[i].classList.contains("liked")) {
+                    allAjax[i].innerHTML = "<i class='fa fa-thumbs-up Post__like colored' aria-hidden='true' style='font-size:26px;'>";
+                } else {
+                    allAjax[i].innerHTML = "<i class='fa fa-thumbs-up Post__like' aria-hidden='true' style='font-size:26px;'>";
+                }
+
+            }
+
+            $(".Post__like").css("cursor", "pointer");
+            var allLikes = $(".Post__like");
+
+            for (let i = 0; i < allLikes.length; i++) {
+                allLikes[i].onclick = function () {
+                    console.log(i + "   " + allLikes[i].classList);
+                    allLikes[i].classList.toggle("colored");
+                }
+            }
+
+        });
+
+    </script>
+
+}

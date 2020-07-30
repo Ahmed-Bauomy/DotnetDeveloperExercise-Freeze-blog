@@ -1,0 +1,75 @@
+﻿@using SP_ASPNET_1.BusinessLogic
+@using SP_ASPNET_1.Models
+
+
+@{ 
+    string ID;
+    string mark = ""; 
+ }
+
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script>
+
+    function loadMoreFunction() {
+        var allAjax = $(".Ajax__Link");
+
+        for (let i = 0; i < allAjax.length; i++) {
+            console.log(i + " " + allAjax[i]);
+            if (allAjax[i].classList.contains("liked")) {
+                allAjax[i].innerHTML = "<i class='fa fa-thumbs-up Post__like colored' aria-hidden='true' style='font-size:26px;'>";
+            } else {
+                allAjax[i].innerHTML = "<i class='fa fa-thumbs-up Post__like' aria-hidden='true' style='font-size:26px;'>";
+            }
+
+        }
+    }
+
+</script>
+@foreach (BlogPost post in Model)
+{
+
+<li class="Posts__Item">
+    <img src="@Html.AttributeEncode(Constants.POST_IMAGE_PREFIX + post.ImageUrl)" alt="post image preview" class="Post__Image">
+    <div class="Post-Preview__Content">
+        @*<h1>@post.BlogPostID</h1>*@
+        <h2>@post.Title</h2>
+        <p>By @post.Author.Name (@post.Author.AverageLikes() <i class="fa fa-heart"></i> ) on @post.DateTime.ToString(Constants.DISPLAY_DATETIME_FORMAT)</p>
+        <br>
+        <p>@post.Content.Substring(0, 20)...</p>
+    </div>
+</li>
+                <li class="Posts__Item__Link">
+                    <button onClick="location.href='@Url.Action("SinglePost", new { id = @post.BlogPostID})'" class="c-btn">read more</button>
+                    <span style="margin-left:50px;">
+                        <!--<i class="fa fa-thumbs-up Post__like " aria-hidden="true" style="font-size:30px;">-->
+                        <!--("text", "<i class='fa fa-thumbs-up Post__like' aria-hidden='true' style='font-size:30px;'>")-->
+                        @if (post.Likes.Any(v => v.IPAdress == Request.UserHostAddress))
+                        {
+                            mark = "liked";
+                        }
+                        else
+                        {
+                            mark = "";
+                        }
+                        @Ajax.ActionLink(" ", "AddLikes", new { id = post.BlogPostID, requestIP = Request.UserHostAddress }, new AjaxOptions()
+                   {
+                       HttpMethod = "GET",
+                       InsertionMode = InsertionMode.Replace,
+                       UpdateTargetId = "likeSpan" + post.BlogPostID
+
+                   }, new { @class = "Ajax__Link" + " " + mark })
+                        @{ ID = "likeSpan" + post.BlogPostID; }
+
+                        <span id="@ID"> @post.Likes.ToList().Count() </span>
+
+                        <!--</i>-->
+                    </span>
+                    <hr class="Post__Hr" />
+                </li>}
+
+
+
+
+
+
+

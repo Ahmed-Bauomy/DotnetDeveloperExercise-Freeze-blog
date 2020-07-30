@@ -1,0 +1,49 @@
+﻿@using SP_ASPNET_1.BusinessLogic
+@model SP_ASPNET_1.ViewModels.BlogSinglePostViewModel
+
+@{ 
+    string ID;
+    string mark = "";
+}
+<div class="Posts__Recent">
+    <h1 class="Posts__Recent-title">recent post</h1>
+    @if (Model != null)
+    {
+    <img src="@Html.AttributeEncode(Constants.POST_IMAGE_PREFIX + Model.BlogPost.ImageUrl)" alt="post image preview" class="Post__Image">
+    <div class="Post-Preview__Content">
+        @*<h1>@Model.BlogPost.BlogPostID</h1>*@
+        <h2>@Model.BlogPost.Title</h2>
+        <p>By @Model.Author.Name
+
+        ( @Model.Author.AverageLikes() <i class="fa fa-heart"></i> )
+
+        on @Model.BlogPost.DateTime.ToString(Constants.DISPLAY_DATETIME_FORMAT)</p>
+        <br>
+        <p>@Model.BlogPost.Content.Substring(0, 50)...</p>
+        <button onClick="location.href='@Url.Action("SinglePost", new { id = Model.BlogPost.BlogPostID})'" class="c-btn c-btn--dark">read more</button>
+        <span>
+            @if (Model.BlogPost.Likes.Any(v => v.IPAdress == Request.UserHostAddress))
+            {
+                mark = "liked";
+            }
+            else
+            {
+                mark = "";
+            }
+            @Ajax.ActionLink(" ", "AddLikes", new { id = Model.BlogPost.BlogPostID, requestIP = Request.UserHostAddress }, new AjaxOptions()
+            {
+                HttpMethod = "GET",
+                InsertionMode = InsertionMode.Replace,
+                UpdateTargetId = "likeSpan" + Model.BlogPost.BlogPostID
+            }, new { @class = "Ajax__Link" + " " + mark })
+            @{ ID = "likeSpan" + Model.BlogPost.BlogPostID; }
+
+            <span id="@ID"> @Model.BlogPost.Likes.ToList().Count() </span>
+        </span>
+    </div>
+    }
+    else
+    {
+    <h2>There is no recent post :-(</h2>
+    }
+</div>
