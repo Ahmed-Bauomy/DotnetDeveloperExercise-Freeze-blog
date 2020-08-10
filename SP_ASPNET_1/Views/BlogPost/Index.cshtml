@@ -7,6 +7,7 @@
     string ID;
     string mark="";
     string CommentsId;
+    string CommentsCount;
     }
 @if (Model.BlogPosts != null)
 {
@@ -49,6 +50,7 @@
                             @{ 
                                 ID = "likeSpan" + post.BlogPostID;
                                 CommentsId = "Comments" + post.BlogPostID;
+                                CommentsCount = "CommentsCount" + post.BlogPostID;
                             }
                             
                             <span id="@ID" style="margin-right:5px;"> @post.Likes.ToList().Count() </span>
@@ -56,17 +58,18 @@
                              {
                                  HttpMethod="POST",
                                  InsertionMode=InsertionMode.Replace,
-                                 UpdateTargetId="Comments"+post.BlogPostID
-
-                              }, new { @class="c-btn btn" }) <span>@post.Comments.Count()</span>
+                                 UpdateTargetId="Comments"+post.BlogPostID,
+                                 OnSuccess="AddRemoveButton"
+                              }, new { @class="c-btn btn" }) <span id="@CommentsCount" >@post.Comments.Count()</span>
                             <div id="@CommentsId">
 
                             </div>
-                             @using (Ajax.BeginForm("AddNewComment",new { id=post.BlogPostID },new AjaxOptions()
-                             {
-                                 HttpMethod = "POST",
-                                 InsertionMode = InsertionMode.InsertAfter,
-                                 UpdateTargetId = "Comments"+post.BlogPostID
+                             @using (Ajax.BeginForm("AddNewComment", new { id = post.BlogPostID }, new AjaxOptions()
+                                 {
+                                     HttpMethod = "POST",
+                                     InsertionMode = InsertionMode.InsertAfter,
+                                     UpdateTargetId = "Comments" + post.BlogPostID,
+                                     OnSuccess = "AddRemoveButton"
                              },new { @class="text-left" }))
                              {
                                 <label for="UserName" class="text-left" >Name:</label>
@@ -123,8 +126,16 @@
             }
         }
         LikesLoadFuntion();
+        function AddRemoveButton() {
+            var allRemoveButtons = $(".RemoveCommentLink");
+            for (let i = 0; i < allRemoveButtons.length; i++) {
+                allRemoveButtons[i].innerHTML = "<i style='float: right;border:1px solid black;font-size:30px;' class='fa fa-times'></i>";
+            }
+        }
         
-
+        function deleteFunc(ID) {
+            $('#' + ID).parent().parent().remove();
+        }
     
  
     </script>

@@ -3,7 +3,22 @@
 @foreach(var item in Model)
 {
     <div class="text-left" style="box-shadow:2px 2px 3px gray;border-left:2px solid purple;">
-        <span style="color:darkslateblue;font-size:large;">@item.UserName :</span>
-        <p style="color:lightseagreen" >@item.body</p>
+        <div>
+            <span style="color:darkslateblue;font-size:large;">@item.UserName :</span>
+            @*<button style="float:right;"><i class="fa fa-times"></i></button>*@
+            @{ 
+                var ID = "Comment" + item.Id;
+            }
+            @Ajax.ActionLink(" ","RemoveComment",new { id=item.Id,blogId=item.BlogPost.BlogPostID },new AjaxOptions()
+             {
+               HttpMethod = "POST",
+               OnSuccess = "deleteFunc('"+ID+"')",
+               UpdateTargetId = "CommentsCount" +item.BlogPostID
+             },new { id=ID , @class="RemoveCommentLink" })
+        </div>
+        <p style="color:lightseagreen;">@item.body</p>
     </div>
 }
+<script>
+  
+</script>

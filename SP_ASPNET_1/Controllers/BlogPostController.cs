@@ -204,10 +204,11 @@ namespace SP_ASPNET_1.Controllers
                 Session["numOfPosts"] = x;
             }
            // var result2 = this._blogPostOperations.GetBlogIndexViewModel().BlogPosts.ToList();
-            var result = this._db.BlogPosts.OrderByDescending(p=>p.DateTime).ToList();
-            if (! (x > result.Count()))
+            //var result = this._db.BlogPosts.OrderByDescending(p=>p.DateTime).ToList();
+            if (! (x-10 >= this._db.BlogPosts.Count()))
             {
-                result= result.Take(x).Except(result.Take(x - 10)).ToList();
+                var result = this._db.BlogPosts.OrderByDescending(p => p.DateTime).Skip(x-10).Take(10).ToList();
+               // result= result.Take(x).Except(result.Take(x - 10)).ToList();
                 return PartialView(result);
             }
             return null;
@@ -231,6 +232,15 @@ namespace SP_ASPNET_1.Controllers
                 }
             }
             return PartialView(comment);
+        }
+        public ActionResult RemoveComment(int id,int blogId)
+        {
+             var blogPost = _blogPostOperations.GetBlogPostByIdD(blogId);
+             var comment=blogPost.Comments.SingleOrDefault(c => c.Id == id);
+            _db.Comments.Remove(comment);
+            this._db.SaveChanges();
+
+            return PartialView(blogPost);
         }
     }
 }

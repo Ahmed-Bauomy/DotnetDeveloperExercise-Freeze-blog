@@ -63,11 +63,12 @@ namespace SP_ASPNET_1.DbFiles.Operations
         public BlogSinglePostViewModel GetLatestBlogPost()
         {
 
-            var list = _unitOfWork.BlogPostSchoolRepository.Get(filter: null,
-         /* orderBy: x => x.OrderByDescending(entity => entity.DateTime)*/null,includeProperties: "Author");
+         /*   var list = _unitOfWork.BlogPostSchoolRepository.Get(filter: null,*/
+         /* orderBy: x => x.OrderByDescending(entity => entity.DateTime)*/
+         /*  null,includeProperties: "Author");*/
 
            // return list.Select(StaticHelpers.ToBlogSinglePostViewModel).FirstOrDefault();
-            //var list = GetDbContext().BlogPosts.ToList();
+            var list = GetDbContext().BlogPosts.ToList();
 
              var max=list.Max(a => a.DateTime);
             return list.Where(a=>a.DateTime==max).Select(StaticHelpers.ToBlogSinglePostViewModel).FirstOrDefault();

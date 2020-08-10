@@ -278,6 +278,7 @@
     <Content Include="Views\BlogPost\LoadMore.cshtml" />
     <Content Include="Views\BlogPost\GetCommentsById.cshtml" />
     <Content Include="Views\BlogPost\AddNewComment.cshtml" />
+    <Content Include="Views\BlogPost\RemoveComment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
